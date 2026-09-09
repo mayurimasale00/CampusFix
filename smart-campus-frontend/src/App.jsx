@@ -19,8 +19,14 @@ function App() {
       <Route path="/register" element={<Register />} />
 
       <Route path="/student" element={<StudentDashboard />} />
-      <Route path="/student/create-complaint" element={<CreateComplaint />} />
-      <Route path="/student/complaints" element={<MyComplaints />} />
+      <Route
+        path="/student/create-complaint"
+        element={<CreateComplaint />}
+      />
+      <Route
+        path="/student/complaints"
+        element={<MyComplaints />}
+      />
       <Route
         path="/student/complaint/:id"
         element={<ComplaintDetails />}
@@ -28,7 +34,10 @@ function App() {
       <Route path="/student/profile" element={<Profile />} />
 
       <Route path="/admin" element={<AdminDashboard />} />
-      <Route path="/admin/complaints" element={<ManageComplaints />} />
+      <Route
+        path="/admin/complaints"
+        element={<ManageComplaints />}
+      />
 
       <Route
         path="*"
