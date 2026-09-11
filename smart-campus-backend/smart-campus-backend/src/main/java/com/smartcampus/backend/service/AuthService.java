@@ -1,7 +1,6 @@
 package com.smartcampus.backend.service;
 
 import com.smartcampus.backend.dto.AuthResponse;
-import com.smartcampus.backend.dto.LoginRequest;
 import com.smartcampus.backend.dto.RegisterRequest;
 import com.smartcampus.backend.entity.Role;
 import com.smartcampus.backend.entity.User;
@@ -31,9 +30,7 @@ public class AuthService {
     public AuthResponse register(RegisterRequest request) {
 
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException(
-                    "Email already registered"
-            );
+            throw new RuntimeException("Email already registered");
         }
 
         User user = new User();
@@ -57,16 +54,19 @@ public class AuthService {
         );
     }
 
-    public AuthResponse login(LoginRequest request) {
+        public AuthResponse login(Object request) {
+                String email = requestValue(request, "getEmail");
+                String password = requestValue(request, "getPassword");
 
-        User user = userRepository.findByEmail(
-                request.getEmail()
-        ).orElseThrow(() ->
-                new RuntimeException("Invalid email or password")
-        );
+                User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Invalid email or password"
+                        )
+                );
 
         if (!passwordEncoder.matches(
-                request.getPassword(),
+                password,
                 user.getPassword()
         )) {
             throw new RuntimeException(
@@ -86,4 +86,12 @@ public class AuthService {
                 user.getName()
         );
     }
+
+        private String requestValue(Object request, String methodName) {
+                try {
+                        return (String) request.getClass().getMethod(methodName).invoke(request);
+                } catch (ReflectiveOperationException | ClassCastException e) {
+                        throw new IllegalArgumentException("Invalid login request", e);
+                }
+        }
 }

@@ -1,33 +1,43 @@
 package com.smartcampus.backend.controller;
 
+import com.smartcampus.backend.dto.ProfileResponse;
 import com.smartcampus.backend.entity.User;
+import com.smartcampus.backend.repository.UserRepository;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
-
 @RestController
 @RequestMapping("/api/profile")
-@CrossOrigin("http://localhost:5173")
+@CrossOrigin(origins = "http://localhost:5173")
 public class ProfileController {
 
+    private final UserRepository userRepository;
+
+    public ProfileController(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
     @GetMapping
-    public Map<String, Object> getProfile(
+    public ResponseEntity<ProfileResponse> getProfile(
             Authentication authentication
     ) {
 
-        User user = (User) authentication.getPrincipal();
+        String email = authentication.getName();
 
-        Map<String, Object> profile = new HashMap<>();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found")
+                );
 
-        profile.put("id", user.getId());
-        profile.put("name", user.getName());
-        profile.put("email", user.getEmail());
-        profile.put("role", user.getRole().name());
-        profile.put("createdAt", user.getCreatedAt());
+        ProfileResponse response = new ProfileResponse(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getRole().name()
+        );
 
-        return profile;
+        return ResponseEntity.ok(response);
     }
 }

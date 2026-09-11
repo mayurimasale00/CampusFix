@@ -4,16 +4,9 @@ public class RegisterRequest {
 
     private String name;
     private String email;
+    private String rollNo;
+    private String department;
     private String password;
-
-    public RegisterRequest() {
-    }
-
-    public RegisterRequest(String name, String email, String password) {
-        this.name = name;
-        this.email = email;
-        this.password = password;
-    }
 
     public String getName() {
         return name;
@@ -29,6 +22,22 @@ public class RegisterRequest {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getRollNo() {
+        return rollNo;
+    }
+
+    public void setRollNo(String rollNo) {
+        this.rollNo = rollNo;
+    }
+
+    public String getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(String department) {
+        this.department = department;
     }
 
     public String getPassword() {

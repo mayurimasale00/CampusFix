@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin("http://localhost:5173")
+@CrossOrigin(origins = "http://localhost:5173")
 public class AuthController {
 
     private final AuthService authService;
@@ -19,41 +19,27 @@ public class AuthController {
         this.authService = authService;
     }
 
+    // =========================
+    // REGISTER
+    // =========================
     @PostMapping("/register")
-    public ResponseEntity<?> register(
-            @RequestBody RegisterRequest request
-    ) {
+    public ResponseEntity<AuthResponse> register(
+            @RequestBody RegisterRequest request) {
 
-        try {
+        AuthResponse response = authService.register(request);
 
-            return ResponseEntity.ok(
-                    authService.register(request)
-            );
-
-        } catch (RuntimeException e) {
-
-            return ResponseEntity
-                    .badRequest()
-                    .body(e.getMessage());
-        }
+        return ResponseEntity.ok(response);
     }
 
+    // =========================
+    // LOGIN
+    // =========================
     @PostMapping("/login")
-    public ResponseEntity<?> login(
-            @RequestBody LoginRequest request
-    ) {
+    public ResponseEntity<AuthResponse> login(
+            @RequestBody LoginRequest request) {
 
-        try {
+        AuthResponse response = authService.login(request);
 
-            return ResponseEntity.ok(
-                    authService.login(request)
-            );
-
-        } catch (RuntimeException e) {
-
-            return ResponseEntity
-                    .status(401)
-                    .body(e.getMessage());
-        }
+        return ResponseEntity.ok(response);
     }
 }

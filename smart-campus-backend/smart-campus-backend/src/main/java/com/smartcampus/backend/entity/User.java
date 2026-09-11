@@ -5,7 +5,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -30,21 +29,15 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private Role role;
 
-    private LocalDateTime createdAt;
-
     public User() {
-    }
-
-    public User(String name, String email, String password, Role role) {
-        this.name = name;
-        this.email = email;
-        this.password = password;
-        this.role = role;
-        this.createdAt = LocalDateTime.now();
     }
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -53,11 +46,6 @@ public class User implements UserDetails {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    @Override
-    public String getUsername() {
-        return email;
     }
 
     public String getEmail() {
@@ -85,19 +73,16 @@ public class User implements UserDetails {
         this.role = role;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(
-                new SimpleGrantedAuthority("ROLE_" + role.name())
+            new SimpleGrantedAuthority("ROLE_" + role.name())
         );
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
     }
 
     @Override

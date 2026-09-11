@@ -10,7 +10,12 @@ public class AuthResponse {
     public AuthResponse() {
     }
 
-    public AuthResponse(String token, String message, String role, String name) {
+    public AuthResponse(
+            String token,
+            String message,
+            String role,
+            String name
+    ) {
         this.token = token;
         this.message = message;
         this.role = role;
