@@ -2,23 +2,69 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 function Login() {
+
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [form, setForm] = useState({
+    email: "",
+    password: ""
+  });
 
-  const handleLogin = (e) => {
+  const [error, setError] = useState("");
+
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = async (e) => {
+
     e.preventDefault();
+    setError("");
 
-    if (!email || !password) {
-      alert("Please enter email and password");
-      return;
+    try {
+
+      const response = await fetch(
+        "http://localhost:8080/api/auth/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            email: form.email,
+            password: form.password
+          })
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message || "Login failed");
+        return;
+      }
+
+      // SAVE JWT TOKEN
+      localStorage.setItem("token", data.token);
+
+      // SAVE USER NAME
+      localStorage.setItem("name", data.name);
+
+      // SAVE ROLE
+      localStorage.setItem("role", data.role);
+
+      // Go to profile
+      navigate("/profile");
+
+    } catch (error) {
+
+      console.error(error);
+      setError("Cannot connect to backend");
+
     }
-
-    // Temporary frontend login
-    // Later we will connect this to Spring Boot
-
-    navigate("/student");
   };
 
   return (
@@ -31,14 +77,16 @@ function Login() {
         </div>
 
         <div className="auth-content">
+
           <h1>
             Welcome
             <span> Back.</span>
           </h1>
 
           <p>
-            Login to report and track your campus complaints.
+            Login to manage your campus complaints.
           </p>
+
         </div>
 
       </div>
@@ -51,46 +99,41 @@ function Login() {
             ← Back to Home
           </Link>
 
-          <h2>Login</h2>
+          <h2>Welcome Back</h2>
 
           <p className="auth-subtitle">
-            Enter your credentials to continue
+            Login to your student account
           </p>
 
-          <form onSubmit={handleLogin}>
+          {error && (
+            <p style={{ color: "red" }}>
+              {error}
+            </p>
+          )}
+
+          <form onSubmit={handleSubmit}>
 
             <label>Email Address</label>
 
             <input
+              name="email"
               type="email"
               placeholder="student@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={form.email}
+              onChange={handleChange}
               required
             />
 
             <label>Password</label>
 
             <input
+              name="password"
               type="password"
               placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={form.password}
+              onChange={handleChange}
               required
             />
-
-            <div className="form-options">
-
-              <label className="checkbox-label">
-                <input type="checkbox" />
-                Remember me
-              </label>
-
-              <a href="#forgot">
-                Forgot password?
-              </a>
-
-            </div>
 
             <button
               type="submit"
@@ -103,10 +146,7 @@ function Login() {
 
           <p className="switch-auth">
             Don't have an account?
-
-            <Link to="/register">
-              {" "}Create Account
-            </Link>
+            <Link to="/register"> Register</Link>
           </p>
 
         </div>

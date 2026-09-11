@@ -1,73 +1,60 @@
-const API_URL = "http://localhost:8080";
+const API_URL = "http://localhost:8080/api";
 
-export async function registerUser(userData) {
-    const response = await fetch(
-        `${API_URL}/api/auth/register`,
-        {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(userData)
-        }
-    );
+// REGISTER
+export const registerUser = async (userData) => {
+  const response = await fetch(`${API_URL}/auth/register`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(userData),
+  });
 
-    const data = await response.json();
+  const data = await response.json();
 
-    if (!response.ok) {
-        throw new Error(
-            typeof data === "string"
-                ? data
-                : "Registration failed"
-        );
-    }
+  if (!response.ok) {
+    throw new Error(data.message || "Registration failed");
+  }
 
-    return data;
-}
+  return data;
+};
 
-export async function loginUser(userData) {
-    const response = await fetch(
-        `${API_URL}/api/auth/login`,
-        {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(userData)
-        }
-    );
+// LOGIN
+export const loginUser = async (loginData) => {
+  const response = await fetch(`${API_URL}/auth/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(loginData),
+  });
 
-    const data = await response.json();
+  const data = await response.json();
 
-    if (!response.ok) {
-        throw new Error(
-            typeof data === "string"
-                ? data
-                : "Login failed"
-        );
-    }
+  if (!response.ok) {
+    throw new Error(data.message || "Login failed");
+  }
 
-    return data;
-}
+  return data;
+};
 
-export async function getProfile() {
+// GET PROFILE
+export const getProfile = async () => {
+  const token = localStorage.getItem("token");
 
-    const token = localStorage.getItem("token");
+  const response = await fetch(`${API_URL}/profile`, {
+    method: "GET",
+    headers: {
+      "Authorization": `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
 
-    const response = await fetch(
-        `${API_URL}/api/profile`,
-        {
-            method: "GET",
-            headers: {
-                "Authorization": `Bearer ${token}`,
-                "Content-Type": "application/json"
-            }
-        }
-    );
+  const data = await response.json();
 
-    if (!response.ok) {
-        throw new Error("Unable to fetch profile");
-    }
+  if (!response.ok) {
+    throw new Error(data.message || "Failed to fetch profile");
+  }
 
-    return await response.json();
-}
+  return data;
+};
