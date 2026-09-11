@@ -21,17 +21,19 @@ public class AuthService {
     public AuthService(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
-            JwtService jwtService) {
-
+            JwtService jwtService
+    ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
     }
 
-    public String register(RegisterRequest request) {
+    public AuthResponse register(RegisterRequest request) {
 
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email already registered");
+            throw new RuntimeException(
+                    "Email already registered"
+            );
         }
 
         User user = new User();
@@ -47,23 +49,26 @@ public class AuthService {
 
         userRepository.save(user);
 
-        return "Registration successful";
+        return new AuthResponse(
+                null,
+                "Registration successful",
+                "STUDENT",
+                user.getName()
+        );
     }
 
     public AuthResponse login(LoginRequest request) {
 
-        User user = userRepository
-                .findByEmail(request.getEmail())
-                .orElseThrow(
-                        () -> new RuntimeException(
-                                "Invalid email or password"
-                        )
-                );
+        User user = userRepository.findByEmail(
+                request.getEmail()
+        ).orElseThrow(() ->
+                new RuntimeException("Invalid email or password")
+        );
 
         if (!passwordEncoder.matches(
                 request.getPassword(),
-                user.getPassword())) {
-
+                user.getPassword()
+        )) {
             throw new RuntimeException(
                     "Invalid email or password"
             );

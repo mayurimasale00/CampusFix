@@ -1,178 +1,112 @@
-import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { registerUser } from "../services/api";
 
 function Register() {
 
-  const navigate = useNavigate();
+    const navigate = useNavigate();
 
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    rollNo: "",
-    department: "",
-    password: "",
-    confirmPassword: ""
-  });
-
-  const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value
+    const [form, setForm] = useState({
+        name: "",
+        email: "",
+        password: ""
     });
-  };
 
-  const handleSubmit = (e) => {
+    const [message, setMessage] = useState("");
+    const [error, setError] = useState("");
 
-    e.preventDefault();
+    function handleChange(e) {
 
-    if (form.password !== form.confirmPassword) {
-      alert("Passwords do not match");
-      return;
+        setForm({
+            ...form,
+            [e.target.name]: e.target.value
+        });
     }
 
-    // Later this will call Java backend
+    async function handleSubmit(e) {
 
-    navigate("/login");
-  };
+        e.preventDefault();
 
-  return (
-    <div className="auth-page">
+        setError("");
+        setMessage("");
 
-      <div className="auth-left">
+        try {
 
-        <div className="auth-brand">
-          Smart<span>Campus</span>
-        </div>
+            const data = await registerUser(form);
 
-        <div className="auth-content">
+            setMessage(data.message);
 
-          <h1>
-            Join the
-            <span> Change.</span>
-          </h1>
+            setTimeout(() => {
+                navigate("/login");
+            }, 1000);
 
-          <p>
-            Create your student account and help make your campus
-            better.
-          </p>
+        } catch (error) {
 
-        </div>
+            setError(error.message);
+        }
+    }
 
-      </div>
+    return (
+        <div className="auth-container">
 
-      <div className="auth-right">
+            <h1>Create Account</h1>
 
-        <div className="auth-card register-card">
-
-          <Link to="/" className="back-home">
-            ← Back to Home
-          </Link>
-
-          <h2>Create Account</h2>
-
-          <p className="auth-subtitle">
-            Register as a student
-          </p>
-
-          <form onSubmit={handleSubmit}>
-
-            <label>Full Name</label>
-
-            <input
-              name="name"
-              type="text"
-              placeholder="Enter your full name"
-              value={form.name}
-              onChange={handleChange}
-              required
-            />
-
-            <label>Email Address</label>
-
-            <input
-              name="email"
-              type="email"
-              placeholder="student@example.com"
-              value={form.email}
-              onChange={handleChange}
-              required
-            />
-
-            <div className="two-inputs">
-
-              <div>
-                <label>Roll Number</label>
+            <form onSubmit={handleSubmit}>
 
                 <input
-                  name="rollNo"
-                  type="text"
-                  placeholder="CS001"
-                  value={form.rollNo}
-                  onChange={handleChange}
-                  required
+                    type="text"
+                    name="name"
+                    placeholder="Full Name"
+                    value={form.name}
+                    onChange={handleChange}
+                    required
                 />
-              </div>
 
-              <div>
-                <label>Department</label>
+                <input
+                    type="email"
+                    name="email"
+                    placeholder="Email"
+                    value={form.email}
+                    onChange={handleChange}
+                    required
+                />
 
-                <select
-                  name="department"
-                  value={form.department}
-                  onChange={handleChange}
-                  required
+                <input
+                    type="password"
+                    name="password"
+                    placeholder="Password"
+                    value={form.password}
+                    onChange={handleChange}
+                    required
+                />
+
+                <button type="submit">
+                    Register
+                </button>
+
+            </form>
+
+            {message && (
+                <p>{message}</p>
+            )}
+
+            {error && (
+                <p>{error}</p>
+            )}
+
+            <p>
+                Already have an account?
+                {" "}
+                <button
+                    type="button"
+                    onClick={() => navigate("/login")}
                 >
-                  <option value="">Select</option>
-                  <option>CSE</option>
-                  <option>IT</option>
-                  <option>ECE</option>
-                  <option>Mechanical</option>
-                  <option>Civil</option>
-                  <option>Electrical</option>
-                </select>
-              </div>
-
-            </div>
-
-            <label>Password</label>
-
-            <input
-              name="password"
-              type="password"
-              placeholder="Create password"
-              value={form.password}
-              onChange={handleChange}
-              required
-            />
-
-            <label>Confirm Password</label>
-
-            <input
-              name="confirmPassword"
-              type="password"
-              placeholder="Confirm password"
-              value={form.confirmPassword}
-              onChange={handleChange}
-              required
-            />
-
-            <button type="submit" className="auth-button">
-              Create Account →
-            </button>
-
-          </form>
-
-          <p className="switch-auth">
-            Already have an account?
-            <Link to="/login"> Login</Link>
-          </p>
+                    Login
+                </button>
+            </p>
 
         </div>
-
-      </div>
-
-    </div>
-  );
+    );
 }
 
 export default Register;

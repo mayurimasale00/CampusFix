@@ -1,160 +1,119 @@
-import { Link, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { getProfile } from "../services/api";
 
-function ComplaintDetails() {
+function Profile() {
 
-  const { id } = useParams();
+    const navigate = useNavigate();
 
-  return (
-    <div className="dashboard-page">
+    const [profile, setProfile] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
 
-      <aside className="sidebar">
+    useEffect(() => {
 
-        <div className="sidebar-logo">
-          Smart<span>Campus</span>
-        </div>
+        const token = localStorage.getItem("token");
 
-        <nav>
+        if (!token) {
+            navigate("/login");
+            return;
+        }
 
-          <Link to="/student">
-            🏠 Dashboard
-          </Link>
+        async function loadProfile() {
 
-          <Link to="/student/create-complaint">
-            📝 New Complaint
-          </Link>
+            try {
 
-          <Link className="active" to="/student/complaints">
-            📋 My Complaints
-          </Link>
+                const data = await getProfile();
 
-          <Link to="/student/profile">
-            👤 Profile
-          </Link>
+                setProfile(data);
 
-        </nav>
+            } catch (error) {
 
-        <Link to="/" className="logout">
-          ↪ Logout
-        </Link>
+                console.error(error);
 
-      </aside>
+                localStorage.removeItem("token");
 
-      <main className="dashboard-main">
+                setError(
+                    "Session expired. Please login again."
+                );
 
-        <Link
-          to="/student/complaints"
-          className="back-link"
-        >
-          ← Back to Complaints
-        </Link>
+                navigate("/login");
 
-        <div className="details-header">
+            } finally {
 
-          <div>
-            <span className="complaint-id">
-              #{id}
-            </span>
+                setLoading(false);
+            }
+        }
 
-            <h1>Classroom Light Issue</h1>
+        loadProfile();
 
-            <p>
-              Submitted on September 9, 2026
-            </p>
-          </div>
+    }, [navigate]);
 
-          <span className="status pending">
-            Pending
-          </span>
+    function logout() {
 
-        </div>
+        localStorage.removeItem("token");
+        localStorage.removeItem("role");
+        localStorage.removeItem("name");
 
-        <div className="details-grid">
+        navigate("/login");
+    }
 
-          <div className="details-card">
+    if (loading) {
+        return <h2>Loading profile...</h2>;
+    }
 
-            <h2>Complaint Details</h2>
+    if (!profile) {
+        return <h2>{error}</h2>;
+    }
 
-            <div className="detail-item">
-              <span>Category</span>
-              <strong>Electricity</strong>
-            </div>
+    return (
+        <div className="profile-container">
 
-            <div className="detail-item">
-              <span>Location</span>
-              <strong>CSE Block - Room 204</strong>
-            </div>
+            <h1>My Profile</h1>
 
-            <div className="detail-item">
-              <span>Priority</span>
-              <strong>Medium</strong>
-            </div>
+            <div className="profile-card">
 
-            <div className="description-box">
+                <h2>
+                    {profile.name}
+                </h2>
 
-              <span>Description</span>
+                <p>
+                    <strong>ID:</strong>{" "}
+                    {profile.id}
+                </p>
 
-              <p>
-                The classroom lights near the last two benches
-                are not working properly. The room becomes very
-                dark during afternoon classes.
-              </p>
+                <p>
+                    <strong>Name:</strong>{" "}
+                    {profile.name}
+                </p>
 
-            </div>
+                <p>
+                    <strong>Email:</strong>{" "}
+                    {profile.email}
+                </p>
 
-          </div>
+                <p>
+                    <strong>Role:</strong>{" "}
+                    {profile.role}
+                </p>
 
-          <div className="details-card">
+                <p>
+                    <strong>Registered:</strong>{" "}
+                    {profile.createdAt
+                        ? new Date(
+                            profile.createdAt
+                        ).toLocaleString()
+                        : "N/A"}
+                </p>
 
-            <h2>Complaint Timeline</h2>
-
-            <div className="timeline">
-
-              <div className="timeline-item active">
-                <div className="timeline-dot"></div>
-
-                <div>
-                  <strong>Complaint Submitted</strong>
-                  <p>09 Sep 2026, 10:30 AM</p>
-                </div>
-              </div>
-
-              <div className="timeline-item">
-                <div className="timeline-dot"></div>
-
-                <div>
-                  <strong>Pending Review</strong>
-                  <p>Waiting for administrator</p>
-                </div>
-              </div>
-
-              <div className="timeline-item">
-                <div className="timeline-dot"></div>
-
-                <div>
-                  <strong>In Progress</strong>
-                  <p>Not started</p>
-                </div>
-              </div>
-
-              <div className="timeline-item">
-                <div className="timeline-dot"></div>
-
-                <div>
-                  <strong>Resolved</strong>
-                  <p>Not resolved</p>
-                </div>
-              </div>
+                <button onClick={logout}>
+                    Logout
+                </button>
 
             </div>
-
-          </div>
 
         </div>
-
-      </main>
-
-    </div>
-  );
+    );
 }
 
-export default ComplaintDetails;
+export default Profile;
